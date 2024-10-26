@@ -39,7 +39,8 @@ async function main() {
 
     } catch (error) {
         console.error(`Error: ${error.message}`);
-        
+        throw error;
+
     } finally {
         // Close the watcher in the finally block if it exists
         if (watcher) {
