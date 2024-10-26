@@ -1,0 +1,34 @@
+name: Cross-Platform Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        node-version: [16, 18]
+
+    steps:
+      # Check out the code
+      - name: Check out repository
+        uses: actions/checkout@v3
+
+      # Set up Node.js
+      - name: Set up Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      # Install dependencies
+      - name: Install dependencies
+        run: npm install
+
+      # Run the test script
+      - name: Run index.js
+        run: node index.js

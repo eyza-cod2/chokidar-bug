@@ -3,45 +3,45 @@ const fs = require('fs');
 const path = require('path');
 
 async function main() {
+    let watcher;
     try {
-        // Define the root folder path
         const rootFolder = path.join(__dirname, 'TEST_FOLDER');
         
-        // Remove the directory if it already exists
         if (fs.existsSync(rootFolder)) {
             fs.rmSync(rootFolder, { recursive: true });
         }
 
-        // Recreate the directory structure
+        // Create the directory structure
         fs.mkdirSync(rootFolder);
         fs.mkdirSync(path.join(rootFolder, 'folder1'));
         fs.mkdirSync(path.join(rootFolder, 'folder2'));
         fs.mkdirSync(path.join(rootFolder, 'folder2', 'subfolder'));
 
-        // Initialize watcher
-        const watcher = chokidar.watch(rootFolder, { persistent: true });
 
-        // Set up event logging for all events
+        watcher = chokidar.watch(rootFolder, { persistent: true });
+
         watcher.on('all', (event, path) => {
             console.log(event, path);
         });
 
         // Delay to ensure watcher is ready
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise(resolve => setTimeout(resolve, 500));
 
-        // Rename folder1 and log events
+        // Rename folder1 - it is ok
         fs.renameSync(path.join(rootFolder, 'folder1'), path.join(rootFolder, 'folder1_renamed'));
 
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise(resolve => setTimeout(resolve, 500));
 
-        // Rename folder2 and log events
+        // Rename folder2 with subfolder - IT THROW ERROR!
         fs.renameSync(path.join(rootFolder, 'folder2'), path.join(rootFolder, 'folder2_renamed'));
 
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise(resolve => setTimeout(resolve, 500));
+
     } catch (error) {
         console.error(`Error: ${error.message}`);
+        
     } finally {
-        // Close the watcher
+        // Close the watcher in the finally block if it exists
         if (watcher) {
             await watcher.close();
             console.log('Watcher closed');
